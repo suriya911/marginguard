@@ -11,44 +11,50 @@ const useMarginStore = create((set, get) => ({
   truthLayerActive: false,
   currentPage: 'dashboard',
 
-  // Pipeline
+  // Pipeline — now 4 agents
   constraint: DEFAULT_CONSTRAINT,
-  pipelineStatus: 'idle', // idle | running | complete | error
-  agentStatuses: { audit: 'waiting', reallocation: 'waiting', experiment: 'waiting' },
+  pipelineStatus: 'idle',
+  agentStatuses: {
+    audit:        'waiting',
+    reallocation: 'waiting',
+    experiment:   'waiting',
+    optimization: 'waiting',
+  },
   agentTimings: {},
   streamingChunks: '',
 
   // Results
-  auditReport: null,
+  auditReport:      null,
   reallocationPlan: null,
-  experimentBrief: null,
+  experimentBrief:  null,
+  optimizationReport: null,
   brief: null,
 
   // Actions
   setCampaignData: (data) => set({ campaignData: data }),
-  setConstraint: (text) => set({ constraint: text }),
-  setCurrentPage: (page) => set({ currentPage: page }),
+  setConstraint:   (text) => set({ constraint: text }),
+  setCurrentPage:  (page) => set({ currentPage: page }),
 
-  activateTruthLayer: () => set({ truthLayerActive: true }),
-  deactivateTruthLayer: () => set({ truthLayerActive: false }),
-  toggleTruthLayer: () => set((s) => ({ truthLayerActive: !s.truthLayerActive })),
+  activateTruthLayer:  () => set({ truthLayerActive: true }),
+  deactivateTruthLayer:() => set({ truthLayerActive: false }),
+  toggleTruthLayer:    () => set((s) => ({ truthLayerActive: !s.truthLayerActive })),
 
   runPipeline: () => {
     const { constraint } = get()
     set({
       pipelineStatus: 'running',
-      agentStatuses: { audit: 'running', reallocation: 'waiting', experiment: 'waiting' },
+      agentStatuses: { audit: 'running', reallocation: 'waiting', experiment: 'waiting', optimization: 'waiting' },
       streamingChunks: '',
       brief: null,
     })
 
     const url = `${BASE()}/api/pipeline/stream?brand_constraint=${encodeURIComponent(constraint)}`
-    const es = new EventSource(url)
+    const es  = new EventSource(url)
 
     es.addEventListener('agent_start', (e) => {
       const d = JSON.parse(e.data)
       set((s) => ({
-        agentStatuses: { ...s.agentStatuses, [d.agent]: 'running' },
+        agentStatuses:   { ...s.agentStatuses, [d.agent]: 'running' },
         streamingChunks: s.streamingChunks + `\n► [${d.agent.toUpperCase()}] ${d.message}\n`,
       }))
     })
@@ -62,7 +68,7 @@ const useMarginStore = create((set, get) => ({
       const d = JSON.parse(e.data)
       set((s) => ({
         agentStatuses: { ...s.agentStatuses, [d.agent]: 'complete' },
-        agentTimings: { ...s.agentTimings, [d.agent]: d.duration_seconds },
+        agentTimings:  { ...s.agentTimings,  [d.agent]: d.duration_seconds },
       }))
     })
 
@@ -70,12 +76,13 @@ const useMarginStore = create((set, get) => ({
       const brief = JSON.parse(e.data)
       es.close()
       set({
-        pipelineStatus: 'complete',
+        pipelineStatus:    'complete',
         brief,
-        auditReport: brief.audit,
-        reallocationPlan: brief.reallocation,
-        experimentBrief: brief.experiment,
-        currentPage: 'brief',
+        auditReport:       brief.audit,
+        reallocationPlan:  brief.reallocation,
+        experimentBrief:   brief.experiment,
+        optimizationReport: brief.optimization,
+        currentPage:       'brief',
       })
     })
 
@@ -85,17 +92,17 @@ const useMarginStore = create((set, get) => ({
     }
   },
 
-  resetPipeline: () =>
-    set({
-      pipelineStatus: 'idle',
-      agentStatuses: { audit: 'waiting', reallocation: 'waiting', experiment: 'waiting' },
-      agentTimings: {},
-      streamingChunks: '',
-      brief: null,
-      auditReport: null,
-      reallocationPlan: null,
-      experimentBrief: null,
-    }),
+  resetPipeline: () => set({
+    pipelineStatus:    'idle',
+    agentStatuses:     { audit: 'waiting', reallocation: 'waiting', experiment: 'waiting', optimization: 'waiting' },
+    agentTimings:      {},
+    streamingChunks:   '',
+    brief:             null,
+    auditReport:       null,
+    reallocationPlan:  null,
+    experimentBrief:   null,
+    optimizationReport: null,
+  }),
 }))
 
 export default useMarginStore

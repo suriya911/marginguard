@@ -5,10 +5,12 @@ import CampaignTruthCard from '../components/brief/CampaignTruthCard'
 import BudgetDeltaTable from '../components/brief/BudgetDeltaTable'
 import ExperimentCard from '../components/brief/ExperimentCard'
 import ExecutiveSummary from '../components/brief/ExecutiveSummary'
+import OptimizationSuggestions from '../components/brief/OptimizationSuggestions'
 
 export default function BriefPage() {
-  const navigate = useNavigate()
-  const brief    = useMarginStore((s) => s.brief)
+  const navigate     = useNavigate()
+  const brief        = useMarginStore((s) => s.brief)
+  const optimization = useMarginStore((s) => s.optimizationReport)
 
   if (!brief) {
     return (
@@ -49,6 +51,8 @@ export default function BriefPage() {
 
       <BudgetDeltaTable plan={reallocation} />
       <ExperimentCard experiment={experiment} />
+
+      {optimization && <OptimizationSuggestions report={optimization} />}
     </main>
   )
 }

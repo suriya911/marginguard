@@ -1,126 +1,148 @@
 import asyncio
 import json
 import time
-from collections.abc import AsyncIterator
-from typing import Callable
+from datetime import datetime, timezone
+from concurrent.futures import ThreadPoolExecutor
 
 from backend.agents.audit_agent import run_audit
-from backend.agents.experiment_agent import run_experiment
 from backend.agents.reallocation_agent import run_reallocation
-from backend.data.glownest_fixtures import (
-    BRAND_NAME,
-    DEFAULT_CONSTRAINT,
-    GLOWNEST_CAMPAIGNS,
-    TOTAL_DAILY_BUDGET,
-)
+from backend.agents.experiment_agent import run_experiment
+from backend.agents.optimization_agent import run_optimization
+from backend.data.glownest_fixtures import BRAND_NAME, GLOWNEST_CAMPAIGNS, DEFAULT_CONSTRAINT
 from backend.models.brief import MarginGuardBrief
 
-
-def _sse(event: str, data: dict) -> str:
-    return f"event:{event}\ndata:{json.dumps(data)}\n\n"
+_executor = ThreadPoolExecutor(max_workers=1)
 
 
-async def run_pipeline(
-    constraint: str | None = None,
-    emit: Callable[[str], None] | None = None,
-) -> MarginGuardBrief:
-    """
-    Chain all three agents. emit() is called with each raw SSE string.
-    Returns a validated MarginGuardBrief.
-    """
-    constraint = constraint or DEFAULT_CONSTRAINT
-    emit = emit or (lambda _: None)
-
+async def run_pipeline(brand_constraint: str = DEFAULT_CONSTRAINT) -> MarginGuardBrief:
+    """Run the full 4-agent pipeline and return a MarginGuardBrief."""
+    loop = asyncio.get_event_loop()
     pipeline_start = time.time()
+    timings = {}
 
-    emit(_sse("pipeline_start", {
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "brand": BRAND_NAME,
-        "agents": 3,
-    }))
+    t = time.time()
+    audit = await loop.run_in_executor(_executor, run_audit, GLOWNEST_CAMPAIGNS, BRAND_NAME)
+    timings["audit"] = round(time.time() - t, 2)
 
-    # --- Agent 1: Audit ---
-    emit(_sse("agent_start", {"agent": "audit", "message": "Reading dashboard + margin data..."}))
-    t0 = time.time()
-    emit(_sse("agent_chunk", {"agent": "audit", "chunk": "Applying True Profit ROAS formula to all campaigns..."}))
+    t = time.time()
+    reallocation = await loop.run_in_executor(_executor, run_reallocation, audit, brand_constraint)
+    timings["reallocation"] = round(time.time() - t, 2)
 
-    audit_report = await asyncio.to_thread(run_audit)
+    t = time.time()
+    experiment = await loop.run_in_executor(_executor, run_experiment, reallocation)
+    timings["experiment"] = round(time.time() - t, 2)
 
-    audit_duration = round(time.time() - t0, 2)
-    emit(_sse("agent_complete", {
-        "agent": "audit",
-        "duration_seconds": audit_duration,
-        "anomalies_found": audit_report.campaigns_unprofitable + audit_report.campaigns_at_risk,
-    }))
-
-    # --- Agent 2: Reallocation ---
-    emit(_sse("agent_start", {"agent": "reallocation", "message": "Building budget plan..."}))
-    t0 = time.time()
-    emit(_sse("agent_chunk", {"agent": "reallocation", "chunk": "Applying budget allocation rules and constraint..."}))
-
-    reallocation_plan = await asyncio.to_thread(run_reallocation, audit_report, constraint, TOTAL_DAILY_BUDGET)
-
-    reallocation_duration = round(time.time() - t0, 2)
-    emit(_sse("agent_complete", {
-        "agent": "reallocation",
-        "duration_seconds": reallocation_duration,
-        "weekly_profit_delta": round(reallocation_plan.projected_weekly_profit_delta, 2),
-    }))
-
-    # --- Agent 3: Experiment ---
-    emit(_sse("agent_start", {"agent": "experiment", "message": "Designing experiment..."}))
-    t0 = time.time()
-    emit(_sse("agent_chunk", {"agent": "experiment", "chunk": "Selecting best candidate from reallocation plan..."}))
-
-    experiment_brief = await asyncio.to_thread(run_experiment, reallocation_plan, GLOWNEST_CAMPAIGNS)
-
-    experiment_duration = round(time.time() - t0, 2)
-    emit(_sse("agent_complete", {
-        "agent": "experiment",
-        "duration_seconds": experiment_duration,
-        "chosen_product": experiment_brief.product_name,
-    }))
-
-    pipeline_duration = round(time.time() - pipeline_start, 2)
-
-    brief = MarginGuardBrief(
-        audit=audit_report,
-        reallocation=reallocation_plan,
-        experiment=experiment_brief,
-        pipeline_duration_seconds=pipeline_duration,
-        agent_timings={
-            "audit": audit_duration,
-            "reallocation": reallocation_duration,
-            "experiment": experiment_duration,
-        },
+    # Build partial brief for optimization context
+    partial_brief = MarginGuardBrief(
+        audit=audit,
+        reallocation=reallocation,
+        experiment=experiment,
+        optimization=None,          # filled below
+        pipeline_duration_seconds=0,
+        agent_timings=timings,
     )
 
-    emit(_sse("pipeline_complete", brief.model_dump()))
+    t = time.time()
+    optimization = await loop.run_in_executor(_executor, run_optimization, partial_brief)
+    timings["optimization"] = round(time.time() - t, 2)
 
-    return brief
+    return MarginGuardBrief(
+        audit=audit,
+        reallocation=reallocation,
+        experiment=experiment,
+        optimization=optimization,
+        pipeline_duration_seconds=round(time.time() - pipeline_start, 2),
+        agent_timings=timings,
+    )
 
 
-async def stream_pipeline(constraint: str | None = None) -> AsyncIterator[str]:
-    """Async generator that yields SSE strings as they are emitted."""
-    queue: asyncio.Queue[str | None] = asyncio.Queue()
+async def stream_pipeline(brand_constraint: str = DEFAULT_CONSTRAINT):
+    """Async generator that yields SSE-compatible dicts for each pipeline event."""
+    loop = asyncio.get_event_loop()
+    pipeline_start = time.time()
+    timings = {}
 
-    def emit(msg: str) -> None:
-        queue.put_nowait(msg)
+    def _event(name: str, data: dict) -> dict:
+        return {"event": name, "data": json.dumps(data)}
 
-    async def _run() -> None:
-        try:
-            await run_pipeline(constraint=constraint, emit=emit)
-        except Exception as exc:
-            queue.put_nowait(_sse("pipeline_error", {"error": str(exc)}))
-        finally:
-            queue.put_nowait(None)
+    yield _event("pipeline_start", {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "brand": BRAND_NAME,
+        "agents": 4,
+    })
 
-    task = asyncio.create_task(_run())
+    # ── Agent 1 — Audit ──────────────────────────────────────────────────────
+    yield _event("agent_start", {"agent": "audit", "message": "Reading dashboard + margin data..."})
+    t = time.time()
+    try:
+        audit = await loop.run_in_executor(_executor, run_audit, GLOWNEST_CAMPAIGNS, BRAND_NAME)
+    except Exception as e:
+        yield _event("pipeline_error", {"agent": "audit", "error": str(e)})
+        return
+    timings["audit"] = round(time.time() - t, 2)
+    yield _event("agent_complete", {
+        "agent": "audit",
+        "duration_seconds": timings["audit"],
+        "anomalies_found": len([c for c in audit.campaign_truths if c.anomaly_flags]),
+    })
 
-    while True:
-        item = await queue.get()
-        if item is None:
-            break
-        yield item
+    # ── Agent 2 — Reallocation ───────────────────────────────────────────────
+    yield _event("agent_start", {"agent": "reallocation", "message": "Building budget reallocation plan..."})
+    t = time.time()
+    try:
+        reallocation = await loop.run_in_executor(_executor, run_reallocation, audit, brand_constraint)
+    except Exception as e:
+        yield _event("pipeline_error", {"agent": "reallocation", "error": str(e)})
+        return
+    timings["reallocation"] = round(time.time() - t, 2)
+    yield _event("agent_complete", {
+        "agent": "reallocation",
+        "duration_seconds": timings["reallocation"],
+        "weekly_profit_delta": reallocation.projected_weekly_profit_delta,
+    })
 
-    await task
+    # ── Agent 3 — Experiment ─────────────────────────────────────────────────
+    yield _event("agent_start", {"agent": "experiment", "message": "Designing A/B experiment brief..."})
+    t = time.time()
+    try:
+        experiment = await loop.run_in_executor(_executor, run_experiment, reallocation)
+    except Exception as e:
+        yield _event("pipeline_error", {"agent": "experiment", "error": str(e)})
+        return
+    timings["experiment"] = round(time.time() - t, 2)
+    yield _event("agent_complete", {
+        "agent": "experiment",
+        "duration_seconds": timings["experiment"],
+        "chosen_product": experiment.product_name,
+    })
+
+    # ── Agent 4 — Optimization ───────────────────────────────────────────────
+    partial_brief = MarginGuardBrief(
+        audit=audit, reallocation=reallocation, experiment=experiment,
+        optimization=None, pipeline_duration_seconds=0, agent_timings=timings,
+    )
+    yield _event("agent_start", {"agent": "optimization", "message": "Generating ad optimization suggestions..."})
+    t = time.time()
+    try:
+        optimization = await loop.run_in_executor(_executor, run_optimization, partial_brief)
+    except Exception as e:
+        yield _event("pipeline_error", {"agent": "optimization", "error": str(e)})
+        return
+    timings["optimization"] = round(time.time() - t, 2)
+    yield _event("agent_complete", {
+        "agent": "optimization",
+        "duration_seconds": timings["optimization"],
+        "suggestions_count": optimization.total_suggestions,
+        "high_priority": optimization.high_priority_count,
+    })
+
+    # ── Complete ─────────────────────────────────────────────────────────────
+    brief = MarginGuardBrief(
+        audit=audit,
+        reallocation=reallocation,
+        experiment=experiment,
+        optimization=optimization,
+        pipeline_duration_seconds=round(time.time() - pipeline_start, 2),
+        agent_timings=timings,
+    )
+    yield _event("pipeline_complete", json.loads(brief.model_dump_json()))

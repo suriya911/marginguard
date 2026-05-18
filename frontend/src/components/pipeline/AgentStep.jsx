@@ -7,20 +7,16 @@ const STATUS_CONFIG = {
   error:    { dot: 'bg-danger',    label: 'Error',             pulse: false },
 }
 
-const AGENT_LABELS = {
-  audit:        '① Audit Agent',
-  reallocation: '② Reallocation Agent',
-  experiment:   '③ Experiment Agent',
-}
-
-const AGENT_DESC = {
-  audit:        'Screenshot + margin data → profit truth',
-  reallocation: 'Audit report → budget reallocation plan',
-  experiment:   'Budget plan → A/B experiment brief',
+const AGENT_META = {
+  audit:        { num: '①', label: 'Audit Agent',        desc: 'Screenshot + margin data → profit truth' },
+  reallocation: { num: '②', label: 'Reallocation Agent', desc: 'Audit report → budget reallocation plan' },
+  experiment:   { num: '③', label: 'Experiment Agent',   desc: 'Budget plan → A/B experiment brief'      },
+  optimization: { num: '④', label: 'Optimization Agent', desc: 'Full brief → ranked ad improvement tips' },
 }
 
 export default function AgentStep({ agent, status, timing, stat }) {
-  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.waiting
+  const cfg  = STATUS_CONFIG[status] || STATUS_CONFIG.waiting
+  const meta = AGENT_META[agent]     || { num: '?', label: agent, desc: '' }
 
   return (
     <div className={clsx(
@@ -30,32 +26,21 @@ export default function AgentStep({ agent, status, timing, stat }) {
       status === 'error'    && 'border-danger/30 bg-danger/5',
       status === 'waiting'  && 'border-border bg-surface',
     )}>
-      {/* Status dot */}
       <div className={clsx('w-2.5 h-2.5 rounded-full flex-shrink-0', cfg.dot, cfg.pulse && 'animate-pulse')} />
-
-      {/* Agent info */}
       <div className="flex-1 min-w-0">
-        <div className="font-mono text-sm font-semibold text-white">{AGENT_LABELS[agent]}</div>
-        <div className="text-xs text-gray-500 mt-0.5">{AGENT_DESC[agent]}</div>
+        <div className="font-mono text-sm font-semibold text-white">{meta.num} {meta.label}</div>
+        <div className="text-xs text-gray-500 mt-0.5">{meta.desc}</div>
       </div>
-
-      {/* Right-side state */}
       <div className="text-right flex-shrink-0">
-        {status === 'running' && (
-          <span className="text-xs text-ai font-mono animate-pulse">{cfg.label}</span>
-        )}
+        {status === 'running'  && <span className="text-xs text-ai font-mono animate-pulse">{cfg.label}</span>}
         {status === 'complete' && timing && (
           <div>
             <span className="text-xs text-profit font-mono">✓ {timing}s</span>
             {stat && <div className="text-xs text-gray-400 mt-0.5">{stat}</div>}
           </div>
         )}
-        {status === 'waiting' && (
-          <span className="text-xs text-gray-600 font-mono">{cfg.label}</span>
-        )}
-        {status === 'error' && (
-          <span className="text-xs text-danger font-mono">Failed</span>
-        )}
+        {status === 'waiting'  && <span className="text-xs text-gray-600 font-mono">{cfg.label}</span>}
+        {status === 'error'    && <span className="text-xs text-danger font-mono">Failed</span>}
       </div>
     </div>
   )
