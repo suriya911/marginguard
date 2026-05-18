@@ -70,7 +70,7 @@ async def glownest_data():
 async def pipeline_run(request: PipelineRequest):
     if _USE_FALLBACK:
         return JSONResponse(content=_load_fallback())
-    brief = await run_pipeline(constraint=request.brand_constraint)
+    brief = await run_pipeline(brand_constraint=request.brand_constraint)
     return JSONResponse(content=brief.model_dump())
 
 
@@ -81,7 +81,7 @@ async def pipeline_stream(
     if _USE_FALLBACK:
         return _fallback_stream()
     return StreamingResponse(
-        stream_pipeline(constraint=brand_constraint),
+        stream_pipeline(brand_constraint=brand_constraint),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
@@ -94,7 +94,7 @@ def _fallback_stream() -> StreamingResponse:
         yield _sse("pipeline_start", {
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "brand": "GlowNest Beauty",
-            "agents": 3,
+            "agents": 4,
         })
         await asyncio.sleep(0.3)
 
@@ -151,6 +151,25 @@ def _fallback_stream() -> StreamingResponse:
             "agent": "experiment",
             "duration_seconds": 1.2,
             "chosen_product": fallback["experiment"]["product_name"],
+        })
+        await asyncio.sleep(0.3)
+
+        yield _sse("agent_start", {
+            "agent": "optimization",
+            "message": "Generating ad optimization suggestions...",
+        })
+        await asyncio.sleep(0.4)
+        yield _sse("agent_chunk", {
+            "agent": "optimization",
+            "chunk": "Ranking improvement opportunities by profit impact...",
+        })
+        await asyncio.sleep(1.5)
+        opt = fallback.get("optimization", {})
+        yield _sse("agent_complete", {
+            "agent": "optimization",
+            "duration_seconds": 2.1,
+            "suggestions_count": opt.get("total_suggestions", 6),
+            "high_priority": opt.get("high_priority_count", 2),
         })
         await asyncio.sleep(0.3)
 
