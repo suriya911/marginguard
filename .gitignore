@@ -17,16 +17,23 @@ env/
 
 # Environment files
 .env
+backend/.env
 .env.local
 .env.production
+frontend/.env.local
+frontend/.env.production
 !.env.example
 
 # Node
 node_modules/
 dist/
-
-# Vite
 frontend/dist/
+
+# Vite build
+frontend/dist/
+
+# Screenshots (generate locally with capture_screenshot.py)
+backend/data/screenshots/*.png
 
 # IDE
 .vscode/

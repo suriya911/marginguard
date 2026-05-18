@@ -1,10 +1,11 @@
 {
+  "_note": "Replace this file by running: python -m backend.scripts.generate_fallback after your Gemini key is set",
   "audit": {
     "brand_name": "GlowNest Beauty",
-    "audit_timestamp": "2026-05-18T09:00:00Z",
-    "total_reported_roas": 4.58,
+    "audit_timestamp": "2026-05-19T09:00:00Z",
+    "total_reported_roas": 4.62,
     "total_true_profit_roas": 2.02,
-    "total_daily_true_profit": 2311.42,
+    "total_daily_true_profit": 2311.77,
     "campaigns_audited": 5,
     "campaigns_unprofitable": 1,
     "campaigns_at_risk": 1,
@@ -13,12 +14,12 @@
         "campaign_id": "camp_vc_serum",
         "product_name": "Vitamin C Serum",
         "reported_roas": 4.8,
-        "true_contribution_margin_daily": 529.74,
+        "true_contribution_margin_daily": 529.75,
         "true_profit_roas": 2.94,
         "is_profitable": true,
         "anomaly_flags": ["UNDERFUNDED_HIGH_PROFIT"],
         "anomaly_severity": "low",
-        "recommended_action": "Increase daily budget — this product delivers $2.94 in contribution profit per dollar spent with 94 days of healthy inventory."
+        "recommended_action": "Increase daily budget — high-margin product is being underserved."
       },
       {
         "campaign_id": "camp_cleanser",
@@ -29,29 +30,29 @@
         "is_profitable": false,
         "anomaly_flags": ["UNPROFITABLE_TRUE_ROAS_0.99", "OVERFUNDED_LOW_PROFIT"],
         "anomaly_severity": "critical",
-        "recommended_action": "Reduce spend immediately — a 22% return rate and 38% gross margin mean every ad dollar returns less than $1.00 in contribution profit."
+        "recommended_action": "Reduce budget immediately — 22% return rate wipes out margin despite strong reported ROAS."
       },
       {
         "campaign_id": "camp_retinol",
         "product_name": "Retinol Night Cream",
         "reported_roas": 4.2,
-        "true_contribution_margin_daily": 563.9,
+        "true_contribution_margin_daily": 563.91,
         "true_profit_roas": 1.94,
         "is_profitable": true,
         "anomaly_flags": ["STOCKOUT_RISK_12_DAYS"],
-        "anomaly_severity": "high",
-        "recommended_action": "Reduce spend to protect working capital — inventory will be exhausted in 12 days and scaling now creates stockout exposure before replenishment arrives."
+        "anomaly_severity": "critical",
+        "recommended_action": "Reduce spend — inventory will be exhausted in 12 days and scaling now creates fulfilment risk."
       },
       {
         "campaign_id": "camp_spf",
         "product_name": "SPF Moisturizer",
         "reported_roas": 3.9,
-        "true_contribution_margin_daily": 323.75,
-        "true_profit_roas": 2.02,
+        "true_contribution_margin_daily": 324.08,
+        "true_profit_roas": 2.03,
         "is_profitable": true,
         "anomaly_flags": [],
         "anomaly_severity": "none",
-        "recommended_action": "Maintain current spend — product generates solid contribution margin with stable inventory and no operational risk."
+        "recommended_action": "Maintain current spend — solid performer with healthy inventory and stable margins."
       },
       {
         "campaign_id": "camp_bundle",
@@ -61,20 +62,20 @@
         "true_profit_roas": 5.01,
         "is_profitable": true,
         "anomaly_flags": ["UNDERFUNDED_HIGH_PROFIT"],
-        "anomaly_severity": "medium",
-        "recommended_action": "Significantly increase daily budget — the Starter Bundle generates $5.01 in contribution profit per ad dollar, the highest return in the portfolio, yet receives the lowest spend allocation."
+        "anomaly_severity": "low",
+        "recommended_action": "Significantly increase budget — highest true profit ROAS in portfolio with lowest return rate."
       }
     ],
-    "top_anomaly_summary": "Hydrating Cleanser is the portfolio's worst performer despite showing the highest reported ROAS of 5.1x: after factoring in a 22% return rate, 38% gross margin, and fulfillment costs, it generates only $0.99 in contribution profit per ad dollar — a net loss position. Simultaneously, the Starter Bundle delivers $5.01 in contribution profit per ad dollar but receives just $95/day, the lowest budget in the entire portfolio.",
+    "top_anomaly_summary": "Hydrating Cleanser is critically unprofitable at 0.99x true ROAS despite leading reported ROAS of 5.1x — driven by 22% returns and low margins. Retinol Night Cream has only 12 days of inventory remaining and must not be scaled further.",
     "data_confidence_score": 0.95
   },
   "reallocation": {
     "total_current_daily_budget": 1145.0,
     "total_recommended_daily_budget": 1145.0,
     "budget_neutral_verified": true,
-    "projected_weekly_profit_delta": 2387.50,
+    "projected_weekly_profit_delta": 2340.0,
     "constraint_respected": true,
-    "constraint_summary": "Retinol Night Cream spend was reduced due to confirmed 12-day stockout risk, preventing further inventory depletion ahead of replenishment. Hydrating Cleanser was not increased per the brand constraint; spend was reduced to halt contribution margin losses.",
+    "constraint_summary": "Retinol Night Cream budget reduced per stockout constraint; Hydrating Cleanser not increased per return-rate investigation constraint.",
     "budget_moves": [
       {
         "campaign_id": "camp_vc_serum",
@@ -82,8 +83,8 @@
         "current_daily_spend": 180.0,
         "recommended_daily_spend": 320.0,
         "delta_dollars": 140.0,
-        "delta_pct": 77.78,
-        "rationale": "This product delivers $2.94 in contribution profit per ad dollar with 94 days of healthy inventory — reallocating freed budget here directly increases weekly contribution margin without operational risk.",
+        "delta_pct": 77.8,
+        "rationale": "Highest available true ROAS with healthy inventory — redirecting freed budget here maximises contribution margin.",
         "confidence": 0.88,
         "risk_level": "low",
         "constraint_applied": false
@@ -95,8 +96,8 @@
         "recommended_daily_spend": 210.0,
         "delta_dollars": -210.0,
         "delta_pct": -50.0,
-        "rationale": "A 22% return rate and 38% gross margin mean this campaign returns only $0.99 in contribution profit per ad dollar — continuing at $420/day accelerates net losses of approximately $210 per week.",
-        "confidence": 0.93,
+        "rationale": "Unprofitable at true ROAS 0.99x — cutting spend in half stops the daily margin bleed while maintaining brand presence.",
+        "confidence": 0.92,
         "risk_level": "low",
         "constraint_applied": true
       },
@@ -106,10 +107,10 @@
         "current_daily_spend": 290.0,
         "recommended_daily_spend": 210.0,
         "delta_dollars": -80.0,
-        "delta_pct": -27.59,
-        "rationale": "With only 12 days of inventory remaining, scaling this product creates stockout risk and working capital exposure — a measured reduction preserves sell-through without compounding out-of-stock downside.",
-        "confidence": 0.90,
-        "risk_level": "medium",
+        "delta_pct": -27.6,
+        "rationale": "Stockout in 12 days — reducing spend prevents taking orders we cannot fulfil.",
+        "confidence": 0.95,
+        "risk_level": "low",
         "constraint_applied": true
       },
       {
@@ -119,8 +120,8 @@
         "recommended_daily_spend": 160.0,
         "delta_dollars": 0.0,
         "delta_pct": 0.0,
-        "rationale": "This campaign generates stable contribution margin at $2.02 per ad dollar with no operational risk — maintaining current spend preserves a reliable baseline while broader portfolio reallocation is absorbed.",
-        "confidence": 0.85,
+        "rationale": "Stable performer — no change warranted until higher-priority reallocation opportunities are exhausted.",
+        "confidence": 0.80,
         "risk_level": "none",
         "constraint_applied": false
       },
@@ -130,34 +131,34 @@
         "current_daily_spend": 95.0,
         "recommended_daily_spend": 245.0,
         "delta_dollars": 150.0,
-        "delta_pct": 157.89,
-        "rationale": "The Starter Bundle produces $5.01 in contribution profit per ad dollar — the highest return in the portfolio — with 88 days of healthy inventory and a 4% return rate, making it the strongest candidate to convert freed budget into incremental weekly profit.",
+        "delta_pct": 157.9,
+        "rationale": "Portfolio's highest true ROAS at 5.01x with 88 days inventory — significant underinvestment that this reallocation corrects.",
         "confidence": 0.91,
         "risk_level": "low",
         "constraint_applied": false
       }
     ],
-    "executive_summary": "By redirecting $290 per day away from an unprofitable cleanser campaign and a stockout-risk product toward the two highest-margin SKUs, weekly contribution profit is projected to increase by $2,388 with no change to total daily spend. This plan requires no additional budget — only a reallocation of existing resources toward products with proven contribution margin strength.",
-    "plan_confidence": 0.89
+    "executive_summary": "By cutting the unprofitable Hydrating Cleanser and reducing the stockout-risk Retinol campaign, we free $290 per day to reinvest in the portfolio's two highest-margin products. This reallocation maintains the same total spend while projecting a $2,340 improvement in weekly contribution profit.",
+    "plan_confidence": 0.90
   },
   "experiment": {
     "campaign_id": "camp_bundle",
     "product_name": "Starter Bundle",
-    "opportunity_rationale": "The Starter Bundle is receiving the largest budget increase in this reallocation — $150/day — based on the highest contribution margin ratio in the portfolio at $5.01 per ad dollar. With 88 days of inventory, a 4% return rate, and an $89 average order value, this campaign has strong fundamentals that a creative optimization could amplify significantly. No brand constraint applies, and risk is low, making it the clear experiment candidate to validate whether the true profit improvement exceeds the conservative reallocation baseline.",
-    "hypothesis": "If we replace the current product feature headline with a social proof headline featuring a verified five-star customer review, then conversion rate will increase by 10-15% because purchase intent for an $89 bundle is more sensitive to peer validation than product specification, and the Starter Bundle's 4% return rate signals high buyer satisfaction that is not currently surfaced in the ad creative.",
-    "control_description": "Current ad set showing Starter Bundle product image with feature-based headline copy at $95/day spend targeting the existing audience segment.",
-    "variant_description": "Same targeting and budget allocation, but headline replaced with the brand's highest-rated verified buyer quote alongside a value-anchor line quantifying the bundle saving versus purchasing items individually.",
-    "primary_success_metric": "Contribution margin per 1,000 impressions (revenue per impression adjusted for return rate and gross margin)",
-    "secondary_success_metric": "Product return rate — must not increase above 6% or the margin thesis weakens",
-    "recommended_duration_days": 21,
-    "minimum_detectable_effect": "10% lift in conversion rate at 80% statistical power",
-    "estimated_weekly_profit_impact_if_successful": 412.50,
-    "risk_assessment": "Primary risk is a temporary conversion rate dip during creative ramp-up, but with a 50/50 split and 21-day window the maximum downside is capped before statistical significance is reached."
+    "opportunity_rationale": "Starter Bundle receives the largest budget increase in the reallocation plan, has the highest true profit ROAS, and low return rates — making it the ideal candidate to optimise creative for even higher conversion.",
+    "hypothesis": "If we add customer review social proof to the ad headline, then click-through rate will increase by 15% and conversion rate will increase by 8% because purchase decisions for skincare bundles are heavily influenced by peer validation.",
+    "control_description": "Current ad creative with product-feature-led headline and standard call-to-action.",
+    "variant_description": "New ad creative with top customer review quote in headline and trust-signal badge ('4.8★ from 2,400 reviews') in description.",
+    "primary_success_metric": "Conversion rate (CVR)",
+    "secondary_success_metric": "Click-through rate (CTR)",
+    "recommended_duration_days": 14,
+    "minimum_detectable_effect": "8% lift in CVR",
+    "estimated_weekly_profit_impact_if_successful": 890.0,
+    "risk_assessment": "Low risk — variant is additive copy change with no pricing or landing-page modification."
   },
-  "pipeline_duration_seconds": 8.4,
+  "pipeline_duration_seconds": 7.3,
   "agent_timings": {
-    "audit": 3.2,
-    "reallocation": 2.8,
-    "experiment": 2.4
+    "audit": 2.3,
+    "reallocation": 1.8,
+    "experiment": 1.2
   }
 }
