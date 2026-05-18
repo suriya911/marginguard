@@ -1,11 +1,11 @@
 {
-  "_note": "Replace this file by running: python -m backend.scripts.generate_fallback after your Gemini key is set",
   "audit": {
     "brand_name": "GlowNest Beauty",
     "audit_timestamp": "2026-05-19T09:00:00Z",
     "total_reported_roas": 4.62,
     "total_true_profit_roas": 2.02,
     "total_daily_true_profit": 2311.77,
+    "total_wasted_daily_spend": 310.84,
     "campaigns_audited": 5,
     "campaigns_unprofitable": 1,
     "campaigns_at_risk": 1,
@@ -14,151 +14,260 @@
         "campaign_id": "camp_vc_serum",
         "product_name": "Vitamin C Serum",
         "reported_roas": 4.8,
-        "true_contribution_margin_daily": 529.75,
         "true_profit_roas": 2.94,
-        "is_profitable": true,
-        "anomaly_flags": ["UNDERFUNDED_HIGH_PROFIT"],
-        "anomaly_severity": "low",
-        "recommended_action": "Increase daily budget — high-margin product is being underserved."
+        "daily_spend": 180.0,
+        "true_contribution_margin_daily": 529.75,
+        "anomaly_flags": ["underfunded"],
+        "narrative": "Strongest true margin in portfolio — underfunded relative to profit potential. Increase budget immediately.",
+        "recommendation": "Scale spend to $320/day — highest true ROAS, significant headroom.",
+        "risk_level": "low"
       },
       {
-        "campaign_id": "camp_cleanser",
+        "campaign_id": "camp_hc",
         "product_name": "Hydrating Cleanser",
         "reported_roas": 5.1,
-        "true_contribution_margin_daily": 417.94,
         "true_profit_roas": 0.99,
-        "is_profitable": false,
-        "anomaly_flags": ["UNPROFITABLE_TRUE_ROAS_0.99", "OVERFUNDED_LOW_PROFIT"],
-        "anomaly_severity": "critical",
-        "recommended_action": "Reduce budget immediately — 22% return rate wipes out margin despite strong reported ROAS."
+        "daily_spend": 420.0,
+        "true_contribution_margin_daily": -2.94,
+        "anomaly_flags": ["unprofitable", "high_return_rate"],
+        "narrative": "CRITICAL: Reported ROAS of 5.1x masks a true profit ROAS below 1.0. Every $1 spent loses money. 34% return rate is destroying margins.",
+        "recommendation": "Cut spend by $210/day immediately. Investigate return rate drivers before scaling.",
+        "risk_level": "critical"
       },
       {
-        "campaign_id": "camp_retinol",
+        "campaign_id": "camp_rnc",
         "product_name": "Retinol Night Cream",
         "reported_roas": 4.2,
-        "true_contribution_margin_daily": 563.91,
         "true_profit_roas": 1.94,
-        "is_profitable": true,
-        "anomaly_flags": ["STOCKOUT_RISK_12_DAYS"],
-        "anomaly_severity": "critical",
-        "recommended_action": "Reduce spend — inventory will be exhausted in 12 days and scaling now creates fulfilment risk."
+        "daily_spend": 290.0,
+        "true_contribution_margin_daily": 563.82,
+        "anomaly_flags": ["stockout_risk"],
+        "narrative": "Decent true margin but 12-day inventory runway creates stockout risk. Do not scale spend.",
+        "recommendation": "Hold spend flat. Rush inventory replenishment before increasing budget.",
+        "risk_level": "high"
       },
       {
         "campaign_id": "camp_spf",
         "product_name": "SPF Moisturizer",
         "reported_roas": 3.9,
-        "true_contribution_margin_daily": 324.08,
         "true_profit_roas": 2.03,
-        "is_profitable": true,
+        "daily_spend": 160.0,
+        "true_contribution_margin_daily": 324.80,
         "anomaly_flags": [],
-        "anomaly_severity": "none",
-        "recommended_action": "Maintain current spend — solid performer with healthy inventory and stable margins."
+        "narrative": "Stable performer with healthy true margins. Modest scaling opportunity.",
+        "recommendation": "Maintain current spend. Monitor for scaling opportunities as Cleanser budget is reallocated.",
+        "risk_level": "low"
       },
       {
         "campaign_id": "camp_bundle",
         "product_name": "Starter Bundle",
         "reported_roas": 4.1,
-        "true_contribution_margin_daily": 476.09,
         "true_profit_roas": 5.01,
-        "is_profitable": true,
-        "anomaly_flags": ["UNDERFUNDED_HIGH_PROFIT"],
-        "anomaly_severity": "low",
-        "recommended_action": "Significantly increase budget — highest true profit ROAS in portfolio with lowest return rate."
+        "daily_spend": 95.0,
+        "true_contribution_margin_daily": 475.95,
+        "anomaly_flags": ["underfunded"],
+        "narrative": "Hidden gem — highest true profit ROAS in the portfolio at 5.01x, yet receives the least budget. Massively underfunded.",
+        "recommendation": "Scale aggressively to $245/day. Best ROI opportunity in portfolio.",
+        "risk_level": "low"
       }
     ],
-    "top_anomaly_summary": "Hydrating Cleanser is critically unprofitable at 0.99x true ROAS despite leading reported ROAS of 5.1x — driven by 22% returns and low margins. Retinol Night Cream has only 12 days of inventory remaining and must not be scaled further.",
-    "data_confidence_score": 0.95
+    "executive_summary": "GlowNest is flying blind on profit. The Hydrating Cleanser — your biggest spend at $420/day — has a true profit ROAS of 0.99x, meaning it is actively destroying value. Meanwhile the Starter Bundle at 5.01x true ROAS is starved of budget. Reallocating $210 from Cleanser to Bundle and Serum projects +$1,847/week in recovered profit."
   },
   "reallocation": {
-    "total_current_daily_budget": 1145.0,
-    "total_recommended_daily_budget": 1145.0,
+    "plan_id": "plan_glownest_20260519",
+    "total_daily_budget": 1145.0,
     "budget_neutral_verified": true,
-    "projected_weekly_profit_delta": 2340.0,
-    "constraint_respected": true,
-    "constraint_summary": "Retinol Night Cream budget reduced per stockout constraint; Hydrating Cleanser not increased per return-rate investigation constraint.",
-    "budget_moves": [
+    "projected_weekly_profit_delta": 1847.32,
+    "risk_level": "medium",
+    "moves": [
       {
-        "campaign_id": "camp_vc_serum",
-        "product_name": "Vitamin C Serum",
-        "current_daily_spend": 180.0,
-        "recommended_daily_spend": 320.0,
-        "delta_dollars": 140.0,
-        "delta_pct": 77.8,
-        "rationale": "Highest available true ROAS with healthy inventory — redirecting freed budget here maximises contribution margin.",
-        "confidence": 0.88,
-        "risk_level": "low",
-        "constraint_applied": false
-      },
-      {
-        "campaign_id": "camp_cleanser",
+        "campaign_id": "camp_hc",
         "product_name": "Hydrating Cleanser",
         "current_daily_spend": 420.0,
-        "recommended_daily_spend": 210.0,
-        "delta_dollars": -210.0,
-        "delta_pct": -50.0,
-        "rationale": "Unprofitable at true ROAS 0.99x — cutting spend in half stops the daily margin bleed while maintaining brand presence.",
-        "confidence": 0.92,
-        "risk_level": "low",
-        "constraint_applied": true
-      },
-      {
-        "campaign_id": "camp_retinol",
-        "product_name": "Retinol Night Cream",
-        "current_daily_spend": 290.0,
-        "recommended_daily_spend": 210.0,
-        "delta_dollars": -80.0,
-        "delta_pct": -27.6,
-        "rationale": "Stockout in 12 days — reducing spend prevents taking orders we cannot fulfil.",
-        "confidence": 0.95,
-        "risk_level": "low",
-        "constraint_applied": true
-      },
-      {
-        "campaign_id": "camp_spf",
-        "product_name": "SPF Moisturizer",
-        "current_daily_spend": 160.0,
-        "recommended_daily_spend": 160.0,
-        "delta_dollars": 0.0,
-        "delta_pct": 0.0,
-        "rationale": "Stable performer — no change warranted until higher-priority reallocation opportunities are exhausted.",
-        "confidence": 0.80,
-        "risk_level": "none",
-        "constraint_applied": false
+        "new_daily_spend": 210.0,
+        "delta_daily_spend": -210.0,
+        "rationale": "True ROAS 0.99x — unprofitable. Cut 50% until return rate issue resolved.",
+        "confidence": 0.95
       },
       {
         "campaign_id": "camp_bundle",
         "product_name": "Starter Bundle",
         "current_daily_spend": 95.0,
-        "recommended_daily_spend": 245.0,
-        "delta_dollars": 150.0,
-        "delta_pct": 157.9,
-        "rationale": "Portfolio's highest true ROAS at 5.01x with 88 days inventory — significant underinvestment that this reallocation corrects.",
-        "confidence": 0.91,
-        "risk_level": "low",
-        "constraint_applied": false
+        "new_daily_spend": 245.0,
+        "delta_daily_spend": 150.0,
+        "rationale": "Highest true ROAS at 5.01x. Best use of reallocated budget.",
+        "confidence": 0.92
+      },
+      {
+        "campaign_id": "camp_vc_serum",
+        "product_name": "Vitamin C Serum",
+        "current_daily_spend": 180.0,
+        "new_daily_spend": 320.0,
+        "delta_daily_spend": 140.0,
+        "rationale": "Second-strongest true ROAS at 2.94x with clear scaling headroom.",
+        "confidence": 0.88
+      },
+      {
+        "campaign_id": "camp_rnc",
+        "product_name": "Retinol Night Cream",
+        "current_daily_spend": 290.0,
+        "new_daily_spend": 210.0,
+        "delta_daily_spend": -80.0,
+        "rationale": "Stockout in 12 days. Reduce spend to extend runway until restock.",
+        "confidence": 0.85
+      },
+      {
+        "campaign_id": "camp_spf",
+        "product_name": "SPF Moisturizer",
+        "current_daily_spend": 160.0,
+        "new_daily_spend": 160.0,
+        "delta_daily_spend": 0.0,
+        "rationale": "Stable performer. Hold spend while monitoring portfolio rebalance impact.",
+        "confidence": 0.80
       }
     ],
-    "executive_summary": "By cutting the unprofitable Hydrating Cleanser and reducing the stockout-risk Retinol campaign, we free $290 per day to reinvest in the portfolio's two highest-margin products. This reallocation maintains the same total spend while projecting a $2,340 improvement in weekly contribution profit.",
-    "plan_confidence": 0.90
+    "cfo_narrative": "This reallocation is budget-neutral at $1,145/day while projecting a $1,847/week profit improvement — a 23% uplift. The core move is redirecting $210/day from our largest but loss-making campaign (Hydrating Cleanser, true ROAS 0.99x) to our two most underfunded winners: Starter Bundle (5.01x) and Vitamin C Serum (2.94x). We also pre-emptively reduce Retinol Night Cream spend to extend its 12-day inventory runway while sourcing emergency stock.",
+    "constraints_respected": ["no_retinol_scale", "investigate_cleanser_returns"]
   },
   "experiment": {
-    "campaign_id": "camp_bundle",
+    "experiment_id": "exp_bundle_social_proof_20260519",
     "product_name": "Starter Bundle",
-    "opportunity_rationale": "Starter Bundle receives the largest budget increase in the reallocation plan, has the highest true profit ROAS, and low return rates — making it the ideal candidate to optimise creative for even higher conversion.",
-    "hypothesis": "If we add customer review social proof to the ad headline, then click-through rate will increase by 15% and conversion rate will increase by 8% because purchase decisions for skincare bundles are heavily influenced by peer validation.",
-    "control_description": "Current ad creative with product-feature-led headline and standard call-to-action.",
-    "variant_description": "New ad creative with top customer review quote in headline and trust-signal badge ('4.8★ from 2,400 reviews') in description.",
-    "primary_success_metric": "Conversion rate (CVR)",
-    "secondary_success_metric": "Click-through rate (CTR)",
-    "recommended_duration_days": 14,
-    "minimum_detectable_effect": "8% lift in CVR",
-    "estimated_weekly_profit_impact_if_successful": 890.0,
-    "risk_assessment": "Low risk — variant is additive copy change with no pricing or landing-page modification."
+    "campaign_id": "camp_bundle",
+    "hypothesis": "Adding UGC social proof imagery to Starter Bundle ad creative will increase CTR by 15% and conversion rate by 8%, lifting true profit ROAS from 5.01x to 5.8x within 14 days.",
+    "control_description": "Current Starter Bundle ad: product flatlay image, single headline 'Start Your Glow Journey', standard CTA button.",
+    "variant_description": "New creative: UGC before/after skin transformation photo, headline 'Join 12,000 GlowNest customers', social proof sub-copy '4.8 stars from 3,200 reviews', urgency CTA 'Get the Bundle'.",
+    "primary_metric": "true_profit_roas",
+    "success_metric": "true_profit_roas >= 5.8 with p < 0.05 over 14-day window",
+    "duration_days": 14,
+    "traffic_split_pct": 50,
+    "minimum_detectable_effect": 0.08,
+    "estimated_weekly_profit_impact": 312.5,
+    "rationale": "Starter Bundle has the highest true ROAS (5.01x) and is being scaled from $95 to $245/day. Improving creative performance during scale-up compounds returns. Social proof is the highest-leverage lever for bundle products."
   },
-  "pipeline_duration_seconds": 7.3,
+  "optimization": {
+    "total_suggestions": 6,
+    "high_priority_count": 2,
+    "estimated_total_weekly_profit_impact": 2340,
+    "executive_summary": "Six targeted improvements identified across creative, bidding, and audience strategy. Priority focus: fix Hydrating Cleanser return rate (root cause of negative ROAS) and unlock Starter Bundle audience expansion. Combined impact: +$2,340/week.",
+    "suggestions": [
+      {
+        "suggestion_id": "sug_001",
+        "campaign_id": "camp_hc",
+        "campaign_name": "Hydrating Cleanser",
+        "category": "landing_page",
+        "priority": "high",
+        "title": "Fix product page — 34% return rate is destroying margins",
+        "description": "A 34% return rate is the root cause of this campaign's negative profit ROAS. The product page is setting incorrect expectations about scent, texture, or usage. No amount of ad optimisation fixes a broken post-purchase experience.",
+        "expected_impact": "Reducing return rate from 34% to 15% would push true ROAS from 0.99x to 2.1x — converting your worst campaign into a solid mid-performer.",
+        "estimated_weekly_profit_impact": 980,
+        "action_steps": [
+          "Audit recent 1-star reviews for return reason patterns",
+          "Add texture, scent description and 'best for' skin type to product page",
+          "Add a short video showing correct application amount",
+          "A/B test revised product page with detailed expectation-setting copy",
+          "Add post-purchase email with usage tips to reduce return likelihood"
+        ],
+        "effort": "Medium (2–3 hrs)"
+      },
+      {
+        "suggestion_id": "sug_002",
+        "campaign_id": "camp_bundle",
+        "campaign_name": "Starter Bundle",
+        "category": "audience",
+        "priority": "high",
+        "title": "Build lookalike audience from Starter Bundle purchasers",
+        "description": "With true ROAS of 5.01x, the Starter Bundle has a proven high-value customer profile. A 1% lookalike from purchasers dramatically improves top-of-funnel efficiency as you scale from $95 to $245/day.",
+        "expected_impact": "Lookalike audiences improve conversion rate 20-35% vs broad targeting. At 5.01x base ROAS, even a 20% improvement yields major incremental profit.",
+        "estimated_weekly_profit_impact": 420,
+        "action_steps": [
+          "Export Starter Bundle purchaser list (min 500 customers) from Shopify",
+          "Upload to Google Ads as a Customer Match audience",
+          "Create a 1% Similar Audience based on purchaser list",
+          "Launch separate ad group targeting lookalike only with $80/day budget",
+          "Compare CPA and ROAS vs broad targeting after 7 days"
+        ],
+        "effort": "Low (30 min)"
+      },
+      {
+        "suggestion_id": "sug_003",
+        "campaign_id": "camp_vc_serum",
+        "campaign_name": "Vitamin C Serum",
+        "category": "creative",
+        "priority": "medium",
+        "title": "Add ingredient-led creative as you scale Vitamin C Serum",
+        "description": "As you scale from $180 to $320/day, creative fatigue accelerates. Ingredient-led ads (20% Vitamin C, dermatologist-tested) perform 2-3x better in skincare vs lifestyle imagery.",
+        "expected_impact": "Fresh ingredient-led creative during scale-up protects ROAS. Estimated 10-15% CTR improvement.",
+        "estimated_weekly_profit_impact": 315,
+        "action_steps": [
+          "Brief designer on 3 static ads: ingredient close-up, before/after, scientific claim",
+          "Add '20% Vitamin C concentration' and 'Dermatologist tested' copy overlays",
+          "Test against current creative in 50/50 split for 7 days",
+          "Pause underperformer, scale winner"
+        ],
+        "effort": "Medium (2–3 hrs)"
+      },
+      {
+        "suggestion_id": "sug_004",
+        "campaign_id": "camp_rnc",
+        "campaign_name": "Retinol Night Cream",
+        "category": "inventory",
+        "priority": "medium",
+        "title": "Emergency reorder — only 12 days inventory remaining",
+        "description": "A stockout causes campaign suspension, Quality Score drops, and weeks of ramp-up time. Rush reorder now while reducing spend to extend runway.",
+        "expected_impact": "Preventing stockout avoids an estimated $2,800+ in lost revenue and 3-4 week campaign recovery.",
+        "estimated_weekly_profit_impact": 400,
+        "action_steps": [
+          "Place emergency reorder with supplier today — request air freight if needed",
+          "Reduce campaign spend from $290 to $210/day to extend runway to 17 days",
+          "Set up inventory alert at 30-day threshold going forward",
+          "Prepare paused campaign drafts ready to reactivate on restock"
+        ],
+        "effort": "Low (30 min)"
+      },
+      {
+        "suggestion_id": "sug_005",
+        "campaign_id": "camp_spf",
+        "campaign_name": "SPF Moisturizer",
+        "category": "bidding",
+        "priority": "low",
+        "title": "Switch SPF Moisturizer to Target ROAS bidding",
+        "description": "SPF Moisturizer is stable with consistent true ROAS around 2.0x. Switching to Target ROAS bidding at 350% allows Google to optimise for higher-value conversions automatically.",
+        "expected_impact": "Target ROAS bidding typically improves conversion value 8-15% over manual CPC on established campaigns.",
+        "estimated_weekly_profit_impact": 140,
+        "action_steps": [
+          "Verify campaign has 30+ conversions in last 30 days",
+          "Set Target ROAS to 350% (current reported ROAS baseline)",
+          "Monitor for 2-week learning period — do not change bids",
+          "Adjust target up/down 10% based on actual ROAS achieved"
+        ],
+        "effort": "Low (30 min)"
+      },
+      {
+        "suggestion_id": "sug_006",
+        "campaign_id": "camp_bundle",
+        "campaign_name": "Starter Bundle",
+        "category": "targeting",
+        "priority": "low",
+        "title": "Add negative keywords to cut irrelevant Bundle traffic",
+        "description": "Bundle products attract deal-seekers with low purchase intent. Negative keywords (free, cheap, DIY, sample) improve traffic quality and conversion rate.",
+        "expected_impact": "Negative keyword optimisation reduces wasted spend 8-12% while maintaining conversion volume.",
+        "estimated_weekly_profit_impact": 85,
+        "action_steps": [
+          "Pull Search Terms report for last 30 days in Google Ads",
+          "Flag all terms with 0 conversions and 5+ clicks",
+          "Add irrelevant terms as exact/phrase negatives",
+          "Add broad negatives: free, cheap, diy, sample, homemade",
+          "Review search terms report weekly going forward"
+        ],
+        "effort": "Low (30 min)"
+      }
+    ]
+  },
+  "pipeline_duration_seconds": 28.4,
   "agent_timings": {
-    "audit": 2.3,
-    "reallocation": 1.8,
-    "experiment": 1.2
+    "audit": 7.2,
+    "reallocation": 6.8,
+    "experiment": 5.9,
+    "optimization": 8.5
   }
 }
