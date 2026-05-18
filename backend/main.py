@@ -56,8 +56,8 @@ async def health():
     return {
         "status": "ok",
         "model": "gemini-2.0-flash",
-        "agents": ["audit", "reallocation", "experiment"],
-        "version": "1.0.0",
+        "agents": ["audit", "reallocation", "experiment", "optimization"],
+        "version": "2.0.0",
     }
 
 
