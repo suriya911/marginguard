@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Env files
+.env
+backend/.env
+frontend/.env.local
+frontend/.env.production
+
+# Node
+node_modules/
+dist/
+frontend/dist/
+
+# Screenshots (generate locally with capture_screenshot.py)
+backend/data/screenshots/*.png
+
+# Demo fallback — commit only when pre-computed
+# backend/data/demo_fallback.json
+
+# OS
+.DS_Store
+Thumbs.db
